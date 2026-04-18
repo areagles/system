@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>طلب جديد | Arab Eagles</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/admin-identity.css">
+    <link rel="stylesheet" href="css/style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+</head>
+<body>
+
+    <div id="app-header"></div>
+
+    <div class="container" style="padding-bottom:110px;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #222; padding-bottom:15px;">
+            <h2 style="color:#d4af37; margin:0; font-size:1.3rem;">فتح تذكرة جديدة</h2>
+            <a href="dashboard.html" style="background:rgba(255,255,255,0.05); color:#ccc; padding:8px 15px; border-radius:20px; font-size:0.85rem; text-decoration:none; border:1px solid #333;">
+                <i class="fa-solid fa-arrow-right"></i> الرئيسية
+            </a>
+        </div>
+
+        <div id="orderSmartHint" class="smart-banner">
+            يرجى إدخال المواصفات الأساسية المطلوبة قبل الإرسال.
+        </div>
+        
+        <div class="type-selector" style="display:flex; gap:10px; margin-bottom:25px;">
+            <div class="type-btn active" onclick="setMode('order')" id="btnOrder" style="flex:1; padding:15px; background:#1a1a1a; border:1px solid #333; color:#888; border-radius:12px; cursor:pointer; text-align:center; transition:0.3s;">
+                <i class="fa-solid fa-industry" style="display:block; font-size:1.4rem; margin-bottom:5px;"></i>
+                <span>أمر تشغيل</span>
+            </div>
+            <div class="type-btn" onclick="setMode('quote')" id="btnQuote" style="flex:1; padding:15px; background:#1a1a1a; border:1px solid #333; color:#888; border-radius:12px; cursor:pointer; text-align:center; transition:0.3s;">
+                <i class="fa-solid fa-file-invoice-dollar" style="display:block; font-size:1.4rem; margin-bottom:5px;"></i>
+                <span>طلب سعر</span>
+            </div>
+        </div>
+
+        <form id="mainForm" enctype="multipart/form-data">
+            
+            <div style="margin-bottom:15px;">
+                <label style="display:block; color:#bbb; margin-bottom:8px;">اسم المشروع / الصنف</label>
+                <input type="text" name="job_name" class="p-input" required placeholder="مثال: طباعة كروت شخصية" style="width:100%; padding:12px; background:#0a0a0a; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block; color:#bbb; margin-bottom:8px;">القسم المختص</label>
+                <select name="service_type" class="p-input" style="width:100%; padding:12px; background:#0a0a0a; border:1px solid #333; color:#fff; border-radius:8px;">
+                    <option value="طباعة عامة">طباعة أوفست/ديجيتال</option>
+                    <option value="علب كرتون">علب كرتون</option>
+                    <option value="أكياس بلاستيك">أكياس بلاستيك</option>
+                    <option value="سوشيال ميديا">تسويق إلكتروني</option>
+                    <option value="تصميم">تصميم فقط</option>
+                    <option value="موقع إلكتروني">موقع / برمجة</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block; color:#bbb; margin-bottom:8px;">الكمية المطلوبة</label>
+                <input type="number" name="quantity" class="p-input" placeholder="العدد" style="width:100%; padding:12px; background:#0a0a0a; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block; color:#bbb; margin-bottom:8px;">التفاصيل والمواصفات</label>
+                <textarea name="details" class="p-input" rows="5" placeholder="اكتب المقاسات، الألوان، وأي ملاحظات فنية..." style="width:100%; padding:12px; background:#0a0a0a; border:1px solid #333; color:#fff; border-radius:8px;"></textarea>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block; color:#bbb; margin-bottom:8px;">المرفقات (تصميم/شعار/عينة)</label>
+                <input type="file" name="attachment[]" multiple style="width:100%; padding:10px; background:#0a0a0a; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary" style="width:100%; padding:15px; border:none; border-radius:10px; color:#000; font-weight:bold; font-size:1.1rem; cursor:pointer; margin-top:10px;">إرسال أمر تشغيل</button>
+        </form>
+        
+        <div id="msg" style="margin-top:15px; text-align:center; font-weight:bold; padding:10px; border-radius:8px; display:none;"></div>
+    </div>
+
+    <script src="js/core.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let mode = urlParams.get('type') || 'order'; 
+
+        setMode(mode);
+
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.type-btn').forEach(b => {
+                b.style.borderColor = '#333';
+                b.style.color = '#888';
+                b.style.background = '#1a1a1a';
+            });
+            const activeBtn = document.getElementById(m === 'order' ? 'btnOrder' : 'btnQuote');
+            activeBtn.style.borderColor = '#d4af37';
+            activeBtn.style.color = '#d4af37';
+            activeBtn.style.background = 'rgba(212, 175, 55, 0.08)';
+            
+            const btnText = m === 'order' ? 'إرسال أمر تشغيل' : 'إرسال طلب عرض سعر';
+            document.getElementById('submitBtn').innerText = btnText;
+            const hint = document.getElementById('orderSmartHint');
+            hint.innerHTML = m === 'order'
+                ? 'يرجى إدخال الكمية والمقاس والخامة والمرفقات الأساسية قبل إرسال أمر التشغيل.'
+                : 'يرجى إدخال تفاصيل كافية حتى يمكن إعداد عرض السعر بدقة.';
+        }
+
+        document.getElementById('mainForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('msg');
+            const qtyValue = Number(document.querySelector('input[name=\"quantity\"]').value || 0);
+            const fileInput = document.querySelector('input[name=\"attachment[]\"]');
+            const files = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+            const totalSizeMB = files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+
+            if (qtyValue < 0) {
+                msg.style.display = 'block';
+                msg.style.background = 'rgba(231, 76, 60, 0.15)';
+                msg.style.color = '#e74c3c';
+                msg.style.border = '1px solid #e74c3c';
+                msg.innerHTML = 'الكمية لا يمكن أن تكون بالسالب.';
+                return;
+            }
+
+            if (totalSizeMB > 30) {
+                msg.style.display = 'block';
+                msg.style.background = 'rgba(231, 76, 60, 0.15)';
+                msg.style.color = '#e74c3c';
+                msg.style.border = '1px solid #e74c3c';
+                msg.innerHTML = 'حجم المرفقات يتجاوز الحد الأقصى المسموح 30MB.';
+                return;
+            }
+            
+            btn.disabled = true; 
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري الإرسال...';
+            msg.style.display = 'none';
+            
+            const formData = new FormData(this);
+            const api = mode === 'order' ? 'api/create_order.php' : 'api/request_quote.php';
+
+            try {
+                const data = await window.PortalCore.apiFetch(api, { method: 'POST', body: formData });
+                
+                msg.style.display = 'block';
+                
+                if(data.status === 'success') {
+                    msg.style.background = 'rgba(46, 204, 113, 0.15)';
+                    msg.style.color = '#2ecc71';
+                    msg.style.border = '1px solid #2ecc71';
+                    msg.innerHTML = data.message;
+                    if (window.PortalCore && window.PortalCore.showToast) {
+                        window.PortalCore.showToast('تم إرسال الطلب بنجاح', 'success');
+                    }
+                    setTimeout(() => window.location.href = mode === 'order' ? 'orders.html' : 'quotes.html', 1800);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch(err) {
+                if (err && err.code === 'UNAUTHORIZED') {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                msg.style.background = 'rgba(231, 76, 60, 0.15)';
+                msg.style.color = '#e74c3c';
+                msg.style.border = '1px solid #e74c3c';
+                msg.innerHTML = err.message;
+                btn.disabled = false; 
+                btn.innerText = (mode === 'order' ? 'إرسال أمر تشغيل' : 'إرسال طلب عرض سعر');
+            }
+        });
+    </script>
+</body>
+</html>
